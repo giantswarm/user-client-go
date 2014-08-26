@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-
-	"github.com/juju/errgo"
 )
 
 const (

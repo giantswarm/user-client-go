@@ -1,6 +1,7 @@
 package client
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/juju/errgo"
