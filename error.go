@@ -11,6 +11,6 @@ var (
 	Mask = errgo.MaskFunc(IsErrInvalidCredentials)
 )
 
-func IsErrInvalidCredentials(err) bool {
+func IsErrInvalidCredentials(err error) bool {
 	return errgo.Cause(err) == ErrInvalidCredentials
 }
