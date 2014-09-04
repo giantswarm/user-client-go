@@ -14,6 +14,13 @@ func (this *Client) Authenticate(userOrMail string, reqBody io.Reader) (string, 
 		return zeroVal, Mask(err)
 	}
 
+	// Check if valid credentials.
+	if ok, err := apiSchemaPkg.IsStatusResourceInvalidCredentials(&res.Body); err != nil {
+		return "", errgo.Mask(err)
+	} else if ok {
+		return "", Mask(ErrInvalidCredentials)
+	}
+
 	// Check user service response.
 	var userId string
 	if err := apiSchemaPkg.ParseData(&res.Body, &userId); err != nil {
