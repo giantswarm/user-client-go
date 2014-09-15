@@ -19,6 +19,13 @@ func (this *Client) UpdateEmail(userId, oldMail, newMail string) error {
 		return Mask(err)
 	}
 
+	// Check if request body was valid.
+	if ok, err := apiSchemaPkg.IsStatusWrongInput(&res.Body); err != nil {
+		return Mask(err)
+	} else if ok {
+		return Mask(ErrWrongInput)
+	}
+
 	// Check if valid credentials.
 	if ok, err := apiSchemaPkg.IsStatusResourceInvalidCredentials(&res.Body); err != nil {
 		return Mask(err)
