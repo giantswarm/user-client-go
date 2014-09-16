@@ -14,11 +14,18 @@ func (this *Client) Authenticate(userOrMail string, reqBody io.Reader) (string, 
 		return zeroVal, Mask(err)
 	}
 
+	// Check if request body was valid.
+	if ok, err := apiSchemaPkg.IsStatusWrongInput(&res.Body); err != nil {
+		return zeroVal, Mask(err)
+	} else if ok {
+		return zeroVal, Mask(ErrWrongInput)
+	}
+
 	// Check if valid credentials.
 	if ok, err := apiSchemaPkg.IsStatusResourceInvalidCredentials(&res.Body); err != nil {
-		return "", Mask(err)
+		return zeroVal, Mask(err)
 	} else if ok {
-		return "", Mask(ErrInvalidCredentials)
+		return zeroVal, Mask(ErrInvalidCredentials)
 	}
 
 	// Check user service response.
