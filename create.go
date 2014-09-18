@@ -1,12 +1,11 @@
 package client
 
 import (
-	"net/http"
-
+	"github.com/catalyst-zero/api-schema"
 	"github.com/juju/errgo"
 )
 
-func (this *Client) Create(username, email, password string) (*http.Response, error) {
+func (this *Client) Create(username, email, password string) (string, error) {
 	payload := map[string]string{
 		"username": username,
 		"password": password,
@@ -15,8 +14,18 @@ func (this *Client) Create(username, email, password string) (*http.Response, er
 
 	res, err := this.postJson(this.endpointUrl("/user/"), payload)
 	if err != nil {
-		return nil, errgo.Mask(err)
+		return "", errgo.Mask(err)
 	}
 
-	return res, nil
+	var userID string
+
+	if ok, err := apischema.IsStatusData(&res.Body); err != nil {
+		return "", errgo.Mask(err)
+	} else if ok {
+		if err := apischema.ParseData(&res.Body, &userID); err != nil {
+			return "", errgo.Mask(err)
+		}
+	}
+
+	return userID, nil
 }
