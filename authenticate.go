@@ -28,6 +28,13 @@ func (this *Client) Authenticate(userOrMail string, reqBody io.Reader) (string, 
 		return zeroVal, Mask(ErrInvalidCredentials)
 	}
 
+	// Check if user not found.
+	if ok, err := apiSchemaPkg.IsStatusResourceNotFound(&res.Body); err != nil {
+		return zeroVal, Mask(err)
+	} else if ok {
+		return zeroVal, Mask(ErrNotFound)
+	}
+
 	// Check user service response.
 	var userId string
 	if err := apiSchemaPkg.ParseData(&res.Body, &userId); err != nil {
