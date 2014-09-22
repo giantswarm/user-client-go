@@ -1,7 +1,7 @@
 package client
 
 import (
-	"encoding/json"
+	"github.com/catalyst-zero/api-schema"
 )
 
 type SearchRequest struct {
@@ -16,10 +16,16 @@ func (c *Client) Search(req SearchRequest) ([]User, error) {
 		return result, Mask(err)
 	}
 
-	if err := json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+	// Check if request body was valid.
+	if ok, err := apischema.IsStatusWrongInput(&httpResp.Body); err != nil {
 		return result, Mask(err)
+	} else if ok {
+		return result, Mask(ErrWrongInput)
 	}
 
+	if err := apischema.ParseData(&httpResp.Body, &result); err != nil {
+		return result, Mask(err)
+	}
 	return result, nil
 }
 
