@@ -5,7 +5,8 @@ import (
 )
 
 type SearchRequest struct {
-	Username string `json:"username"`
+	Usernames []string `json:"usernames"`
+	UserIDs   []string `json:"user_ids"`
 }
 
 type SearchResult struct {
@@ -33,10 +34,20 @@ func (c *Client) Search(req SearchRequest) ([]User, error) {
 	return result.Items, nil
 }
 
+func (c *Client) SearchByUserIDs(userIDs []string) ([]User, error) {
+	zeroValue := []User{}
+
+	users, err := c.Search(SearchRequest{UserIDs: userIDs})
+	if err != nil {
+		return zeroValue, Mask(err)
+	}
+	return users, nil
+}
+
 func (c *Client) SearchByUsername(username string) (User, error) {
 	zeroValue := User{}
 
-	users, err := c.Search(SearchRequest{Username: username})
+	users, err := c.Search(SearchRequest{Usernames: []string{username}})
 	if err != nil {
 		return zeroValue, Mask(err)
 	}
