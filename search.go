@@ -11,7 +11,7 @@ type SearchRequest struct {
 func (c *Client) Search(req SearchRequest) ([]User, error) {
 	var result []User
 
-	httpResp, err := c.postJson(this.endpointUrl("/user/search"), req)
+	httpResp, err := c.postJson(c.endpointUrl("/user/search"), req)
 	if err != nil {
 		return result, Mask(err)
 	}
