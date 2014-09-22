@@ -8,25 +8,29 @@ type SearchRequest struct {
 	Username string `json:"username"`
 }
 
-func (c *Client) Search(req SearchRequest) ([]User, error) {
-	var result []User
+type SearchResult struct {
+	Size  int `json:"size"`
+	Items []User
+}
 
+func (c *Client) Search(req SearchRequest) ([]User, error) {
 	httpResp, err := c.postJson(c.endpointUrl("/user/search"), req)
 	if err != nil {
-		return result, Mask(err)
+		return nil, Mask(err)
 	}
 
 	// Check if request body was valid.
 	if ok, err := apischema.IsStatusWrongInput(&httpResp.Body); err != nil {
-		return result, Mask(err)
+		return nil, Mask(err)
 	} else if ok {
-		return result, Mask(ErrWrongInput)
+		return nil, Mask(ErrWrongInput)
 	}
 
+	var result SearchResult
 	if err := apischema.ParseData(&httpResp.Body, &result); err != nil {
-		return result, Mask(err)
+		return nil, Mask(err)
 	}
-	return result, nil
+	return result.Items, nil
 }
 
 func (c *Client) SearchByUsername(username string) (User, error) {
