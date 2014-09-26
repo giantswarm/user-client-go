@@ -21,25 +21,28 @@ func (c *Client) Search(req SearchRequest) ([]User, error) {
 	}
 
 	// Check if request body was valid.
-	if ok, err := apischema.IsStatusWrongInput(&httpResp.Body); err != nil {
+	if err := mapCommonErrors(httpResp); err != nil {
 		return nil, Mask(err)
-	} else if ok {
-		return nil, Mask(ErrWrongInput)
 	}
 
-	var result SearchResult
-	if err := apischema.ParseData(&httpResp.Body, &result); err != nil {
+	if ok, err := apischema.IsStatusData(&httpResp.Body); err != nil {
 		return nil, Mask(err)
+	} else if !ok {
+
+		var result SearchResult
+		if err := apischema.ParseData(&httpResp.Body, &result); err != nil {
+			return nil, Mask(err)
+		}
+		return result.Items, nil
 	}
-	return result.Items, nil
+
+	return nil, Mask(ErrUnexpectedResponse)
 }
 
 func (c *Client) SearchByUserIDs(userIDs []string) ([]User, error) {
-	zeroValue := []User{}
-
 	users, err := c.Search(SearchRequest{UserIDs: userIDs})
 	if err != nil {
-		return zeroValue, Mask(err)
+		return nil, Mask(err)
 	}
 	return users, nil
 }
