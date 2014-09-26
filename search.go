@@ -27,7 +27,7 @@ func (c *Client) Search(req SearchRequest) ([]User, error) {
 
 	if ok, err := apischema.IsStatusData(&httpResp.Body); err != nil {
 		return nil, Mask(err)
-	} else if !ok {
+	} else if ok {
 
 		var result SearchResult
 		if err := apischema.ParseData(&httpResp.Body, &result); err != nil {
