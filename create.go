@@ -1,17 +1,34 @@
 package client
 
 import (
-	"io"
-	"net/http"
-
-	"github.com/juju/errgo"
+	"github.com/catalyst-zero/api-schema"
 )
 
-func (this *Client) Create(reqBody io.Reader) (*http.Response, error) {
-	res, err := this.post(this.endpointUrl("/user/"), "application/json", reqBody)
-	if err != nil {
-		return nil, errgo.Mask(err)
+func (this *Client) Create(username, email, password string) (string, error) {
+	payload := map[string]string{
+		"username": username,
+		"password": password,
+		"email":    email,
 	}
 
-	return res, nil
+	res, err := this.postJson(this.endpointUrl("/user/"), payload)
+	if err != nil {
+		return "", Mask(err)
+	}
+
+	if err := mapCommonErrors(res); err != nil {
+		return "", Mask(err)
+	}
+
+	if ok, err := apischema.IsStatusData(&res.Body); err != nil {
+		return "", Mask(err)
+	} else if ok {
+		var userID string
+		if err := apischema.ParseData(&res.Body, &userID); err != nil {
+			return "", Mask(err)
+		}
+
+		return userID, nil
+	}
+	return "", Mask(ErrUnexpectedResponse)
 }

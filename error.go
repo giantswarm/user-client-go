@@ -1,7 +1,10 @@
 package client
 
 import (
+	"github.com/catalyst-zero/api-schema"
 	"github.com/juju/errgo"
+
+	"net/http"
 )
 
 var (
@@ -23,4 +26,26 @@ func IsErrNotFound(err error) bool {
 
 func IsErrWrongInput(err error) bool {
 	return errgo.Cause(err) == ErrWrongInput
+}
+
+func mapCommonErrors(response *http.Response) error {
+	if ok, err := apischema.IsStatusWrongInput(&response.Body); err != nil {
+		return Mask(err)
+	} else if ok {
+		return Mask(ErrWrongInput)
+	}
+
+	if ok, err := apischema.IsStatusResourceNotFound(&response.Body); err != nil {
+		return Mask(err)
+	} else if ok {
+		return Mask(ErrNotFound)
+	}
+
+	if ok, err := apischema.IsStatusResourceInvalidCredentials(&response.Body); err != nil {
+		return Mask(err)
+	} else if ok {
+		return Mask(ErrInvalidCredentials)
+	}
+
+	return nil
 }

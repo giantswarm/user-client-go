@@ -1,6 +1,8 @@
 package client
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -62,6 +64,16 @@ func (c *Client) post(url, contentType string, body io.Reader) (*http.Response, 
 	}
 
 	return resp, err
+}
+
+// postJson transforms the body into a JSON stream and sends it to the given URL as a HTTP POST request.
+func (c *Client) postJson(url string, body interface{}) (*http.Response, error) {
+	data, err := json.Marshal(body)
+	if err != nil {
+		return nil, Mask(err)
+	}
+
+	return c.post(url, "application/json", bytes.NewReader(data))
 }
 
 func (c *Client) delete(url string) (*http.Response, error) {
