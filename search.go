@@ -14,50 +14,46 @@ type SearchResult struct {
 	Items []User
 }
 
-func (c *Client) Search(req SearchRequest) ([]User, error) {
-	httpResp, err := c.postJson(c.endpointUrl("/user/search"), req)
+func (c *Client) Search(req SearchRequest) (SearchResult, error) {
+	zeroVal := SearchResult{}
+
+	resp, err := c.postSchemaJSON("/user/search", req)
 	if err != nil {
-		return nil, Mask(err)
+		return zeroVal, Mask(err)
 	}
 
-	// Check if request body was valid.
-	if err := mapCommonErrors(httpResp); err != nil {
-		return nil, Mask(err)
+	// Check the status is kind of expected
+	if err := resp.EnsureStatusCodes(apischema.STATUS_CODE_DATA); err != nil {
+		return zeroVal, Mask(err)
 	}
 
-	if ok, err := apischema.IsStatusData(&httpResp.Body); err != nil {
-		return nil, Mask(err)
-	} else if ok {
-
-		var result SearchResult
-		if err := apischema.ParseData(&httpResp.Body, &result); err != nil {
-			return nil, Mask(err)
-		}
-		return result.Items, nil
+	var result SearchResult
+	if err := resp.UnmarshalData(&result); err != nil {
+		return zeroVal, Mask(err)
 	}
 
-	return nil, Mask(ErrUnexpectedResponse)
+	return result, nil
 }
 
 func (c *Client) SearchByUserIDs(userIDs []string) ([]User, error) {
-	users, err := c.Search(SearchRequest{UserIDs: userIDs})
+	result, err := c.Search(SearchRequest{UserIDs: userIDs})
 	if err != nil {
 		return nil, Mask(err)
 	}
-	return users, nil
+	return result.Items, nil
 }
 
 func (c *Client) SearchByUsername(username string) (User, error) {
 	zeroValue := User{}
 
-	users, err := c.Search(SearchRequest{Usernames: []string{username}})
+	result, err := c.Search(SearchRequest{Usernames: []string{username}})
 	if err != nil {
 		return zeroValue, Mask(err)
 	}
 
-	if len(users) != 1 {
+	if len(result.Items) != 1 {
 		return zeroValue, Mask(ErrUnexpectedResponse)
 	}
 
-	return users[0], nil
+	return result.Items[0], nil
 }
