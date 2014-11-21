@@ -1,6 +1,8 @@
 package client
 
 import (
+	"github.com/catalyst-zero/api-schema"
+
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -83,5 +85,10 @@ func (c *Client) delete(url string) (*http.Response, error) {
 
 func (c *Client) postSchemaJSON(urlFragment string, payload interface{}) (*apischema.Response, error) {
 	resp, err := apischema.FromHTTPResponse(c.postJSON(c.endpointUrl(urlFragment), payload))
+	return resp, Mask(err)
+}
+
+func (c *Client) postSchema(urlFragment string) (*apischema.Response, error) {
+	resp, err := apischema.FromHTTPResponse(c.post(c.endpointUrl(urlFragment), "", nil))
 	return resp, Mask(err)
 }
