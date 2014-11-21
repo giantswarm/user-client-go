@@ -1,43 +1,44 @@
 package client
 
 import (
+	"encoding/json"
 	"io"
 
-	apiSchemaPkg "github.com/catalyst-zero/api-schema"
+	"github.com/catalyst-zero/api-schema"
 )
 
 func (this *Client) Authenticate(userOrMail string, reqBody io.Reader) (string, error) {
+	var body struct {
+		Password string `json:"password"`
+	}
+	if err := json.NewDecoder(reqBody).Decode(&body); err != nil {
+		return "", Mask(err)
+	}
+	userID, err := this.AuthenticateCredentials(userOrMail, body.Password)
+	return userID, Mask(err)
+}
+
+// Authenticate checks that a user with the given username (or email) exists.
+func (this *Client) AuthenticateCredentials(userOrMail, password string) (string, error) {
 	zeroVal := ""
 
-	res, err := this.post(this.endpointUrl("/user/"+userOrMail+"/authenticate"), "application/json", reqBody)
+	payload := map[string]string{
+		"password": password,
+	}
+
+	resp, err := this.postSchemaJSON("/user/"+userOrMail+"/authenticate", payload)
 	if err != nil {
 		return zeroVal, Mask(err)
 	}
 
-	// Check if request body was valid.
-	if ok, err := apiSchemaPkg.IsStatusWrongInput(&res.Body); err != nil {
+	// Check the status is kind of expected
+	if err := resp.EnsureStatusCodes(apischema.STATUS_CODE_DATA); err != nil {
 		return zeroVal, Mask(err)
-	} else if ok {
-		return zeroVal, Mask(ErrWrongInput)
-	}
-
-	// Check if valid credentials.
-	if ok, err := apiSchemaPkg.IsStatusResourceInvalidCredentials(&res.Body); err != nil {
-		return zeroVal, Mask(err)
-	} else if ok {
-		return zeroVal, Mask(ErrInvalidCredentials)
-	}
-
-	// Check if user not found.
-	if ok, err := apiSchemaPkg.IsStatusResourceNotFound(&res.Body); err != nil {
-		return zeroVal, Mask(err)
-	} else if ok {
-		return zeroVal, Mask(ErrNotFound)
 	}
 
 	// Check user service response.
 	var userId string
-	if err := apiSchemaPkg.ParseData(&res.Body, &userId); err != nil {
+	if err := resp.UnmarshalData(&userId); err != nil {
 		return zeroVal, Mask(err)
 	}
 
