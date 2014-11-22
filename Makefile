@@ -25,7 +25,7 @@ get-deps: .gobuild
 
 	#
 	# Fetch public dependencies via `go get`
-	GOPATH=$(GOPATH) go get -d -v github.com/giantswarm/$(PROJECT)
+	GOPATH=$(GOPATH) go get -d -t -v github.com/giantswarm/$(PROJECT)
 
 $(BIN): $(SOURCE)
 	GOPATH=$(GOPATH) go build -o $(BIN)

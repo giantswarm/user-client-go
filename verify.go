@@ -5,7 +5,7 @@ import (
 )
 
 func (this *Client) SetEmailVerified(userId string) error {
-	resp, err := this.postSchema("/user/" + userId + "/email/verify")
+	resp, err := this.postSchema("/user/" + userId + "/email/confirm")
 	if err != nil {
 		return Mask(err)
 	}

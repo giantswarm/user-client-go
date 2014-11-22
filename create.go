@@ -16,7 +16,7 @@ func (this *Client) Create(username, email, password string) (string, error) {
 		return "", Mask(err)
 	}
 
-	if err := resp.EnsureStatusCodes(apischema.STATUS_CODE_RESOURCE_CREATED); err != nil {
+	if err := resp.EnsureStatusCodes(apischema.STATUS_CODE_DATA); err != nil {
 		return "", Mask(err)
 	}
 
