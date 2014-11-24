@@ -88,6 +88,7 @@ func (c *Client) postSchemaJSON(urlFragment string, payload interface{}) (*apisc
 	return resp, Mask(err)
 }
 
+// postSchema posts an empty body to the given urlfragment.
 func (c *Client) postSchema(urlFragment string) (*apischema.Response, error) {
 	resp, err := apischema.FromHTTPResponse(c.post(c.endpointUrl(urlFragment), "", nil))
 	return resp, Mask(err)
