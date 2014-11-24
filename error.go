@@ -3,8 +3,6 @@ package client
 import (
 	"github.com/catalyst-zero/api-schema"
 	"github.com/juju/errgo"
-
-	"net/http"
 )
 
 var (
@@ -17,35 +15,13 @@ var (
 )
 
 func IsErrInvalidCredentials(err error) bool {
-	return errgo.Cause(err) == ErrInvalidCredentials
+	return errgo.Cause(err) == ErrInvalidCredentials || apischema.IsResourceInvalidCredentialsError(errgo.Cause(err))
 }
 
 func IsErrNotFound(err error) bool {
-	return errgo.Cause(err) == ErrNotFound
+	return errgo.Cause(err) == ErrNotFound || apischema.IsResourceNotFoundError(errgo.Cause(err))
 }
 
 func IsErrWrongInput(err error) bool {
-	return errgo.Cause(err) == ErrWrongInput
-}
-
-func mapCommonErrors(response *http.Response) error {
-	if ok, err := apischema.IsStatusWrongInput(&response.Body); err != nil {
-		return Mask(err)
-	} else if ok {
-		return Mask(ErrWrongInput)
-	}
-
-	if ok, err := apischema.IsStatusResourceNotFound(&response.Body); err != nil {
-		return Mask(err)
-	} else if ok {
-		return Mask(ErrNotFound)
-	}
-
-	if ok, err := apischema.IsStatusResourceInvalidCredentials(&response.Body); err != nil {
-		return Mask(err)
-	} else if ok {
-		return Mask(ErrInvalidCredentials)
-	}
-
-	return nil
+	return errgo.Cause(err) == ErrWrongInput || apischema.IsWrongInputError(errgo.Cause(err))
 }

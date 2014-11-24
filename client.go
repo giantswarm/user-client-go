@@ -1,6 +1,8 @@
 package client
 
 import (
+	"github.com/catalyst-zero/api-schema"
+
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -42,44 +44,35 @@ func (c *Client) endpointUrl(url string) string {
 // NOTE: These need to be redone, since one accepts a result object, the other does not and so on. Very inconsequent. :(
 func (c *Client) get(url string) (*http.Response, error) {
 	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-
 	if c.LogGetRequest != nil {
 		c.LogGetRequest(url, resp, err)
 	}
-
-	return resp, err
+	return resp, Mask(err)
 }
 
 func (c *Client) post(url, contentType string, body io.Reader) (*http.Response, error) {
 	resp, err := http.Post(url, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-
 	if c.LogPostRequest != nil {
 		c.LogPostRequest(url, contentType, resp, err)
 	}
-
-	return resp, err
+	return resp, Mask(err)
 }
 
 // postJson transforms the body into a JSON stream and sends it to the given URL as a HTTP POST request.
-func (c *Client) postJson(url string, body interface{}) (*http.Response, error) {
+func (c *Client) postJSON(url string, body interface{}) (*http.Response, error) {
 	data, err := json.Marshal(body)
 	if err != nil {
 		return nil, Mask(err)
 	}
 
-	return c.post(url, "application/json", bytes.NewReader(data))
+	resp, err := c.post(url, "application/json", bytes.NewReader(data))
+	return resp, Mask(err)
 }
 
 func (c *Client) delete(url string) (*http.Response, error) {
 	request, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
-		return nil, err
+		return nil, Mask(err)
 	}
 
 	resp, err := http.DefaultClient.Do(request)
@@ -87,5 +80,10 @@ func (c *Client) delete(url string) (*http.Response, error) {
 		c.LogDeleteRequest(url, resp, err)
 	}
 
-	return resp, err
+	return resp, Mask(err)
+}
+
+func (c *Client) postSchemaJSON(urlFragment string, payload interface{}) (*apischema.Response, error) {
+	resp, err := apischema.FromHTTPResponse(c.postJSON(c.endpointUrl(urlFragment), payload))
+	return resp, Mask(err)
 }

@@ -11,24 +11,22 @@ func (this *Client) Create(username, email, password string) (string, error) {
 		"email":    email,
 	}
 
-	res, err := this.postJson(this.endpointUrl("/user/"), payload)
+	resp, err := this.postSchemaJSON("/user/", payload)
 	if err != nil {
 		return "", Mask(err)
 	}
 
-	if err := mapCommonErrors(res); err != nil {
+	if err := resp.EnsureStatusCodes(apischema.STATUS_CODE_RESOURCE_CREATED); err != nil {
 		return "", Mask(err)
 	}
 
-	if ok, err := apischema.IsStatusData(&res.Body); err != nil {
+	var userID string
+	if err := resp.UnmarshalData(&userID); err != nil {
 		return "", Mask(err)
-	} else if ok {
-		var userID string
-		if err := apischema.ParseData(&res.Body, &userID); err != nil {
-			return "", Mask(err)
-		}
-
-		return userID, nil
 	}
-	return "", Mask(ErrUnexpectedResponse)
+
+	if userID == "" {
+		return "", Mask(ErrUnexpectedResponse)
+	}
+	return userID, nil
 }
