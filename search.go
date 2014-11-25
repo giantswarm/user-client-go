@@ -68,7 +68,7 @@ func (c *Client) SearchByEmail(email string) (User, error) {
 	}
 
 	if len(result.Items) != 1 {
-		return zeroValue, Mask(ErrUnexpectedResponse)
+		return zeroValue, Mask(ErrNotFound)
 	}
 
 	return result.Items[0], nil
