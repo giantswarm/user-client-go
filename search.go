@@ -11,8 +11,8 @@ type SearchRequest struct {
 }
 
 type SearchResult struct {
-	Size  int `json:"size"`
-	Items []User
+	Size  int    `json:"size"`
+	Items []User `json:"items"`
 }
 
 func (c *Client) Search(req SearchRequest) (SearchResult, error) {
@@ -53,7 +53,7 @@ func (c *Client) SearchByUsername(username string) (User, error) {
 	}
 
 	if len(result.Items) != 1 {
-		return zeroValue, Mask(ErrUnexpectedResponse)
+		return zeroValue, Mask(ErrNotFound)
 	}
 
 	return result.Items[0], nil
