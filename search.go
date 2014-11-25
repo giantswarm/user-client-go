@@ -6,6 +6,7 @@ import (
 
 type SearchRequest struct {
 	Usernames []string `json:"usernames"`
+	Emails    []string `json:"emails"`
 	UserIDs   []string `json:"user_ids"`
 }
 
@@ -47,6 +48,21 @@ func (c *Client) SearchByUsername(username string) (User, error) {
 	zeroValue := User{}
 
 	result, err := c.Search(SearchRequest{Usernames: []string{username}})
+	if err != nil {
+		return zeroValue, Mask(err)
+	}
+
+	if len(result.Items) != 1 {
+		return zeroValue, Mask(ErrUnexpectedResponse)
+	}
+
+	return result.Items[0], nil
+}
+
+func (c *Client) SearchByEmail(email string) (User, error) {
+	zeroValue := User{}
+
+	result, err := c.Search(SearchRequest{Emails: []string{email}})
 	if err != nil {
 		return zeroValue, Mask(err)
 	}
