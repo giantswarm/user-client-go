@@ -52,8 +52,11 @@ func (c *Client) SearchByUsername(username string) (User, error) {
 		return zeroValue, Mask(err)
 	}
 
-	if len(result.Items) != 1 {
+	if len(result.Items) == 0 {
 		return zeroValue, Mask(ErrNotFound)
+	}
+	if len(result.Items) > 1 {
+		return zeroValue, Mask(ErrUnexpectedResponse)
 	}
 
 	return result.Items[0], nil
@@ -67,8 +70,11 @@ func (c *Client) SearchByEmail(email string) (User, error) {
 		return zeroValue, Mask(err)
 	}
 
-	if len(result.Items) != 1 {
+	if len(result.Items) == 1 {
 		return zeroValue, Mask(ErrNotFound)
+	}
+	if len(result.Items) > 1 {
+		return zeroValue, Mask(ErrUnexpectedResponse)
 	}
 
 	return result.Items[0], nil
