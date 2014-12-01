@@ -10,6 +10,7 @@ var (
 	ErrWrongInput         = errgo.New("Wrong input")
 	ErrInvalidCredentials = errgo.New("Invalid credentials")
 	ErrUnexpectedResponse = errgo.New("Unexpected response from user service")
+	ErrUserAlreadyExists  = errgo.New("User with username or email already exists.")
 
 	Mask = errgo.MaskFunc(IsErrInvalidCredentials, IsErrWrongInput, IsErrNotFound)
 )
@@ -24,4 +25,8 @@ func IsErrNotFound(err error) bool {
 
 func IsErrWrongInput(err error) bool {
 	return errgo.Cause(err) == ErrWrongInput || apischema.IsWrongInputError(errgo.Cause(err))
+}
+
+func IsErrUserAlreadyExists(err error) bool {
+	return errgo.Cause(err) == ErrUserAlreadyExists || apischema.IsResourceAlreadyExistsError(errgo.Cause(err))
 }
