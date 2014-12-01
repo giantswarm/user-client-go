@@ -28,5 +28,5 @@ func IsErrWrongInput(err error) bool {
 }
 
 func IsErrUserAlreadyExists(err error) bool {
-	return errgo.Cause(err) == ErrUserAlreadyExists || apischema.IsResourceAlreadyExists(errgo.Cause(err))
+	return errgo.Cause(err) == ErrUserAlreadyExists || apischema.IsResourceAlreadyExistsError(errgo.Cause(err))
 }
