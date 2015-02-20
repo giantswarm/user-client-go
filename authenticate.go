@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/catalyst-zero/api-schema"
+	"github.com/giantswarm/api-schema"
 )
 
 func (this *Client) Authenticate(userOrMail string, reqBody io.Reader) (string, error) {
