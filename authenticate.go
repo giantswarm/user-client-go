@@ -4,11 +4,6 @@ import (
 	"github.com/giantswarm/api-schema"
 )
 
-func (this *Client) Authenticate(userOrMail, password string) (string, error) {
-	userID, err := this.AuthenticateCredentials(userOrMail, password)
-	return userID, Mask(err)
-}
-
 // Authenticate checks that a user with the given username (or email) exists.
 func (this *Client) AuthenticateCredentials(userOrMail, password string) (string, error) {
 	zeroVal := ""
