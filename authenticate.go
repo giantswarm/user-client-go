@@ -1,20 +1,11 @@
 package client
 
 import (
-	"encoding/json"
-	"io"
-
 	"github.com/giantswarm/api-schema"
 )
 
-func (this *Client) Authenticate(userOrMail string, reqBody io.Reader) (string, error) {
-	var body struct {
-		Password string `json:"password"`
-	}
-	if err := json.NewDecoder(reqBody).Decode(&body); err != nil {
-		return "", Mask(err)
-	}
-	userID, err := this.AuthenticateCredentials(userOrMail, body.Password)
+func (this *Client) Authenticate(userOrMail, password string) (string, error) {
+	userID, err := this.AuthenticateCredentials(userOrMail, password)
 	return userID, Mask(err)
 }
 
