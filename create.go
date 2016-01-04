@@ -6,7 +6,7 @@ import (
 	"github.com/giantswarm/api-schema"
 )
 
-func (this *Client) Create(username, email, password string, expirationDate time.Time) (string, error) {
+func (this *Client) Create(username, email, password string) (string, error) {
 	var noExpirationDate time.Time
 	return this.CreateTimeLimited(username, email, password, noExpirationDate)
 }
