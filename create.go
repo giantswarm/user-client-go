@@ -1,14 +1,25 @@
 package client
 
 import (
+	"time"
+
 	"github.com/giantswarm/api-schema"
 )
 
-func (this *Client) Create(username, email, password string) (string, error) {
+func (this *Client) Create(username, email, password string, expirationDate time.Time) (string, error) {
+	var noExpirationDate time.Time
+	return this.CreateTimeLimited(username, email, password, noExpirationDate)
+}
+
+func (this *Client) CreateTimeLimited(username, email, password string, expirationDate time.Time) (string, error) {
 	payload := map[string]string{
 		"username": username,
 		"password": password,
 		"email":    email,
+	}
+
+	if !expirationDate.IsZero() {
+		payload["expiration_date"] = expirationDate.Format(time.RFC3339)
 	}
 
 	resp, err := this.postSchemaJSON("/user/", payload)
