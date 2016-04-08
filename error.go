@@ -9,6 +9,7 @@ import (
 
 const (
 	reasonEmailMustBeVerified = "email_must_be_verified" // This string is generated in userd to identify these errors so keep it constant
+	reasonUserExpired         = "user_expired"
 )
 
 var (
@@ -18,6 +19,8 @@ var (
 	ErrUnexpectedResponse      = errgo.New("Unexpected response from user service")
 	ErrUserAlreadyExists       = errgo.New("User with username or email already exists.")
 	ErrUserEmailMustBeVerified = errgo.New("Email must be verified to authenticate.")
+
+	ErrUserExpired = errgo.New(reasonUserExpired)
 
 	Mask = errgo.MaskFunc(IsErrInvalidCredentials, IsErrUserEmailMustBeVerified, IsErrWrongInput, IsErrNotFound)
 )
@@ -38,6 +41,16 @@ func IsErrUserEmailMustBeVerified(err error) bool {
 		return true
 	}
 	return apischema.IsWrongInputError(cause) && strings.Contains(cause.Error(), reasonEmailMustBeVerified)
+}
+
+// IsErrUserExpired returns true if the given error was caused by ErrUserExpired
+// or is an apischema error for an 'user_expired'.
+func IsErrUserExpired(err error) bool {
+	cause := errgo.Cause(err)
+	if cause == ErrUserExpired {
+		return true
+	}
+	return apischema.IsWrongInputError(cause) && strings.Contains(cause.Error(), reasonUserExpired)
 }
 
 func IsErrWrongInput(err error) bool {
