@@ -11,7 +11,16 @@ func (client *Client) UpdatePassword(userID, oldPass, newPass string) error {
 		"old_password": oldPass,
 		"new_password": newPass,
 	}
-	return client.postPasswordUpdate(userID, payload)
+	resp, err := client.postSchemaJSON("/user/"+userID+"/password/update", payload)
+	if err != nil {
+		return Mask(err)
+	}
+
+	// Check the status is kind of expected
+	if err := resp.EnsureStatusCodes(apischema.STATUS_CODE_RESOURCE_UPDATED); err != nil {
+		return Mask(err)
+	}
+	return nil
 }
 
 // ResetPassword resets the password of the given user to the new password.
@@ -20,11 +29,7 @@ func (client *Client) ResetPassword(userID, newPass string) error {
 	payload := map[string]string{
 		"new_password": newPass,
 	}
-	return client.postPasswordUpdate(userID, payload)
-}
-
-func (client *Client) postPasswordUpdate(userID string, payload map[string]string) error {
-	resp, err := client.postSchemaJSON("/user/"+userID+"/password/update", payload)
+	resp, err := client.postSchemaJSON("/user/"+userID+"/password/reset", payload)
 	if err != nil {
 		return Mask(err)
 	}
