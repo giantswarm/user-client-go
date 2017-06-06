@@ -5,7 +5,7 @@ import "github.com/giantswarm/api-schema"
 func (this *Client) All() ([]User, error) {
 	emptyResult := []User{}
 
-	resp, err := apischema.FromHTTPResponse(this.get(this.endpointUrl("/users/")))
+	resp, err := apischema.FromHTTPResponse(this.get(this.endpointUrl("/user/")))
 	if err != nil {
 		return emptyResult, err
 	}
