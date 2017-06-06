@@ -5,4 +5,6 @@ type User struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
 	Active   bool   `json:"active"`
+	Expiry   string `json:"expiry,omitempty"`
+	Created  string `json:"created,omitempty"`
 }
