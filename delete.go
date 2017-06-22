@@ -4,7 +4,7 @@ import (
 	"github.com/giantswarm/api-schema"
 )
 
-func (this *Client) Delete(userID string) (ok string, err error) {
+func (this *Client) Delete(userID string) (err error) {
 	resp, err := this.postSchema("/user/" + userID + "/delete")
 	if err != nil {
 		return Mask(err)
