@@ -8,6 +8,10 @@ import (
 func (this *Client) AuthenticateCredentials(userOrMail, password string) (string, error) {
 	zeroVal := ""
 
+        if (userOrMail == "" || password == "") {
+          return zeroVal, Mask(ErrWrongInput)
+        }
+
 	payload := map[string]string{
 		"password": password,
 	}
