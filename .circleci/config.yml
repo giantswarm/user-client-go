@@ -6,10 +6,10 @@ workflows:
   build:
     jobs:
       - architect/go-build:
-        name: build-user-client-go
-        binary: user-client-go
-        os: linux
-        filters:
-          # Trigger job also on git tag.
-          tags:
-            only: /^v.*/
+          name: build-user-client-go
+          binary: user-client-go
+          os: linux
+          filters:
+            # Trigger job also on git tag.
+            tags:
+              only: /^v.*/
