@@ -6,7 +6,7 @@ workflows:
     my-workflow:
     jobs:
         - architect/go-build:
-            name: go-build-user-client-go
+            name: build-user-client-go
             binary: user-client-go
             os: linux
             filters:
