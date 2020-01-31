@@ -1,0 +1,15 @@
+version: 2.1
+orbs:
+  architect: giantswarm/architect@0.4.5
+
+workflows:
+  build:
+    jobs:
+      - architect/go-build:
+          name: build-user-client-go
+          binary: user-client-go
+          os: linux
+          filters:
+            # Trigger job also on git tag.
+            tags:
+              only: /^v.*/
